@@ -1,0 +1,6 @@
+TestTLSDialogData #class
+tls.connection.test.TestTLSDialog #namespace
+targetUri String #field
+targetUri PERSISTENT #fieldModifier
+logList List<com.axonivy.test.tls.TLSTestData> #field
+logList PERSISTENT #fieldModifier

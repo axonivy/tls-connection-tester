@@ -1,0 +1,161 @@
+package com.axonivy.test.tls;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.lang3.StringUtils;
+
+public class TLSUtils
+{
+  public static KeyStore loadKeyStore(String filename, char[] password, String type, String provider)
+          throws Exception
+  {
+    KeyStore ks = StringUtils.isBlank(provider) ? KeyStore.getInstance(type) : KeyStore.getInstance(type,
+            provider);
+    try (InputStream in = new FileInputStream(filename))
+    {
+      char[] storePass = StringUtils.isBlank(provider) ? null : password;
+      ks.load(in, storePass);
+      return ks;
+    }
+  }
+
+  public static SSLSocketFactory getSSLSocketFactory(String protocol, KeyStoreInfo customTS,
+          KeyStoreInfo systemTS, KeyStoreInfo customKS, KeyStoreInfo systemKS)
+          throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
+  {
+	MyTrustManager tm = new MyTrustManager();
+	tm.addAll(createTrustManagers(systemTS));
+	tm.addAll(createTrustManagers(customTS));
+
+    List<KeyManager> kms = new ArrayList<>();
+    kms.addAll(createKeyManagers(customKS));
+    kms.addAll(createKeyManagers(systemKS));
+
+    SSLContext sc = SSLContext.getInstance(protocol);
+    sc.init(kms.toArray(new KeyManager[kms.size()]), new TrustManager[]{tm}, (SecureRandom) null);
+    return sc.getSocketFactory();
+  }
+
+  private static List<X509TrustManager> createTrustManagers(KeyStoreInfo trustStoreInfo)
+          throws KeyStoreException, NoSuchAlgorithmException
+  {
+	  List<X509TrustManager> tms = new ArrayList<>();
+    if (trustStoreInfo.getKeyStore() == null || trustStoreInfo.getKeyStore().size() == 0)
+	{
+    	return tms;
+	}
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    tmf.init(trustStoreInfo.getKeyStore());
+    Arrays.asList(tmf.getTrustManagers()).forEach(tm -> {
+    	if (tm instanceof X509TrustManager) {
+    		tms.add((X509TrustManager) tm);
+    	}
+      });
+    return tms;
+  }
+
+  private static List<KeyManager> createKeyManagers(KeyStoreInfo keyStoreInfo) throws NoSuchAlgorithmException,
+          UnrecoverableKeyException, KeyStoreException
+  {
+	if (keyStoreInfo == null || keyStoreInfo.getKeyStore() == null || keyStoreInfo.getKeyStore().size() == 0)
+	{
+		return Collections.emptyList();
+    }
+    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+    kmf.init(keyStoreInfo.getKeyStore(), keyStoreInfo.getPassword());
+    return Arrays.asList(kmf.getKeyManagers());
+  }
+  
+  private static class MyTrustManager implements X509TrustManager
+  {
+	private final List<X509TrustManager> trustManagers = new ArrayList<>();
+	
+	private void addAll(List<X509TrustManager> trustManagers)
+	{
+	  this.trustManagers.addAll(trustManagers);
+	}
+
+	@Override
+	public void checkClientTrusted(X509Certificate[] chain, String authType)
+			throws CertificateException {
+		for (X509TrustManager tm : trustManagers) {
+			try {
+				tm.checkClientTrusted(chain, authType);
+				return;
+			} catch (Exception e) {
+				// try next trust manager.
+			}
+		}
+		throw new CertificateException("Could not find trusted certificate in chain.");
+	}
+
+	@Override
+	public void checkServerTrusted(X509Certificate[] chain, String authType)
+			throws CertificateException {
+		for (X509TrustManager tm : trustManagers) {
+			try {
+				tm.checkServerTrusted(chain, authType);
+				return;
+			} catch (Exception e) {
+				// try next trust manager.
+			}
+		}
+		throw new CertificateException("Could not find trusted certificate in chain.");
+	}
+
+	@Override
+	public X509Certificate[] getAcceptedIssuers() {
+	    List<X509Certificate> certs = new ArrayList<X509Certificate>();
+		for (X509TrustManager tm : trustManagers) {
+			try {
+				Collections.addAll(certs, tm.getAcceptedIssuers());
+			} catch (Exception e) {
+				// try next trust manager.
+			}
+		}
+		return certs.toArray(new X509Certificate[certs.size()]);
+	}
+  }
+  
+  static class KeyStoreInfo {
+	  private final KeyStore keyStore;
+	  private final char[] password;
+	  
+	  KeyStoreInfo(KeyStore keyStore, char[] password)
+	  {
+		  this.keyStore = keyStore;
+		  this.password = password;
+	  }
+	  
+	  KeyStore getKeyStore()
+	  {
+		  return this.keyStore;
+	  }
+	  
+	  char[] getPassword()
+	  {
+		  return this.password;
+	  }
+  }
+}
