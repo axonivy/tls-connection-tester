@@ -11,8 +11,14 @@
 		<ui:define name="title">TLS Test Target</ui:define>
 		<ui:define name="content">
 			<h3>
-			Please enter the target URI you want to test against
+			Welcome to the Axon.ivy TLS Test application.
 			</h3>
+			This application can help you analyze your connection problems to a TLS URI from (or to) an Axon.ivy application.<br/>
+			It will use the TLS/SSL settings on the Engine or the Designer to connect to the specified URI below.<br/>
+			<br/><br/>
+			<h4>
+			Please enter the target URI you want to test against
+			</h4>
 			
 			<h:form id="form">
 				<h:panelGrid columns="2">
@@ -21,7 +27,7 @@
 					
 					
 					<br />
-					<p:commandButton actionListener="#{logic.close}" value="Proceed" update="form" icon="ui-icon-check" />
+					<p:commandButton actionListener="#{logic.close}" value="Run Tests" update="form" icon="ui-icon-check" />
 				</h:panelGrid>
 			</h:form>
 			

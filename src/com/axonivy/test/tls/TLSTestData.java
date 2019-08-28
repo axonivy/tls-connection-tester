@@ -5,12 +5,14 @@ import ch.ivyteam.ivy.scripting.objects.List;
 public final class TLSTestData
 {
   private String testGroup;
+  private String groupInfo;
   private List<String> entryList;
   private boolean success = true;
 
-  public TLSTestData(String group)
+  public TLSTestData(String group, String groupInfo)
   {
     this.testGroup = group;
+    this.groupInfo = groupInfo;
     this.entryList = new List<>();
   }
 
@@ -22,6 +24,16 @@ public final class TLSTestData
   public void setGroup(String group)
   {
     this.testGroup = group;
+  }
+
+  public String getGroupInfo()
+  {
+    return groupInfo;
+  }
+
+  public void setGroupInfo(String groupInfo)
+  {
+    this.groupInfo = groupInfo;
   }
   
   public void addEntry(String newEntry)

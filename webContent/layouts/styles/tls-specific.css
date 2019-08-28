@@ -1,0 +1,12 @@
+
+.success {
+        background-color: #D9FFC1 !important;
+        background-image: none !important;
+        color: #000000 !important;
+}
+
+.fail {
+        background-color: #FF9696 !important;
+        background-image: none !important;
+        color: #000000 !important;
+}

@@ -17,7 +17,7 @@
 			<h:form id="form">
 				<p:outputLabel value="TLS Target URI" for="targetUri" />
 				<p:inputText value="#{data.targetUri}" id="targetUri" disabled="true" size="100" />
-				<p:dataTable value="#{data.logList}" var="logEntry" id="logList" >
+				<p:dataTable value="#{data.logList}" var="logEntry" rowStyleClass="#{logEntry.success == true ? 'success' : 'fail'}" id="logList" >
 					<p:column style="width:16px">
             			<p:rowToggler />
         			</p:column>
@@ -25,28 +25,27 @@
 						<h:outputText value="#{logEntry.group}"></h:outputText>
 					</p:column>
 					<p:column headerText="Execution Success">
-					    <h:outputText value="#{logEntry.success}" style="float:left" styleClass="ui-icon #{logEntry.success == true ? 'ui-icon-check' : 'ui-icon-close'}"/>
+					    <h:outputText style="float:left" styleClass="fa fa-fw fa-2x #{logEntry.success == true ? 'fa-check-square-o' : 'fa-close'}"/>
 					</p:column>
-        			<!-- <p:column width="30%" headerText="Log Group">
-						<h:outputText value="#{logEntry.group}"></h:outputText>
+        			<p:column style="width:40px;text-align:center">
+						<p:commandLink update=":form:groupDetail" oncomplete="PF('groupInfo').show()" style="background-color:transparent" title="Info">
+							<i class="fa fa-fw fa-info-circle fa-2x"></i>
+                			<f:setPropertyActionListener value="#{logEntry.groupInfo}" target="#{data.groupInfo}" />
+            			</p:commandLink>
 					</p:column>
-					<p:column headerText="Log Entries">
-						<p:repeat value="#{logEntry.entryList}" var="logDataEntry" id="logDataList" >
-								<p:outputPanel>
-									<i class="fa fa-fw fa-angle-double-right"></i>
-									<h:outputText  value="#{logDataEntry}"/>
-								</p:outputPanel>
-						</p:repeat>
-					</p:column> -->
 					<p:rowExpansion>
 						<p:repeat value="#{logEntry.entryList}" var="logDataEntry" id="logDataList" >
-								<p:outputPanel>
-									<i class="fa fa-fw fa-angle-double-right"></i>
-									<h:outputText  value="#{logDataEntry}"/>
-								</p:outputPanel>
+							<h:panelGrid style="height:10px" columns="1">
+								<h:outputText value="#{logDataEntry}" style="height:0px"/>
+							</h:panelGrid>
 						</p:repeat>
 					</p:rowExpansion>
 				</p:dataTable>
+				<p:dialog header="Group Info" widgetVar="groupInfo" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+					<p:outputPanel id="groupDetail" style="text-align:center;">
+						<h:outputText value="#{data.groupInfo}" escape="false" />
+					</p:outputPanel>
+				</p:dialog>
 				<h:panelGrid columns="2">
 					<f:facet name="header">
 						<p:messages></p:messages>

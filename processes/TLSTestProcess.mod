@@ -61,10 +61,7 @@ Ts0 f3 actionDecl 'tls.connection.test.Data out;
 ' #txt
 Ts0 f3 actionTable 'out=in;
 ' #txt
-Ts0 f3 actionCode 'System.setProperty("javax.net.ssl.keyStore","C:/Users/arus/designer-workspace-tls/TLSConnectionTest/keystore-client-auth.jks");
-System.setProperty("javax.net.ssl.keyStorePassword","changeit");
-
-new com.axonivy.test.tls.TLSTest(in.logList, in.targetUri).runTLSTests();
+Ts0 f3 actionCode 'new com.axonivy.test.tls.TLSTest(in.logList, in.targetUri).runTLSTests();
 
 ' #txt
 Ts0 f3 type tls.connection.test.Data #txt

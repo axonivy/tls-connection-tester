@@ -4,3 +4,5 @@ targetUri String #field
 targetUri PERSISTENT #fieldModifier
 logList List<com.axonivy.test.tls.TLSTestData> #field
 logList PERSISTENT #fieldModifier
+groupInfo String #field
+groupInfo PERSISTENT #fieldModifier

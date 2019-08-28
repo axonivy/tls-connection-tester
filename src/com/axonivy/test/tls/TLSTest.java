@@ -49,8 +49,8 @@ public final class TLSTest
 
   private KeyStoreInfo systemKeyStore = null;
   private KeyStoreInfo systemTrustStore = null;
-  private KeyStoreInfo customKeyStore = null;
-  private KeyStoreInfo customTrustStore = null;
+  private KeyStoreInfo customKeyStore = KeyStoreInfo.EMPTY;
+  private KeyStoreInfo customTrustStore = KeyStoreInfo.EMPTY;
 
   public TLSTest(List<TLSTestData> logs, String targetUri)
   {
@@ -61,7 +61,6 @@ public final class TLSTest
   
   public void runTLSTests()
   {
-    //IvySslContext.getStore(type, provider, password, path);
     checkJavaSystemProperties();
     checkIvySystemProperties();
     loadSystemKeystore();
@@ -70,11 +69,16 @@ public final class TLSTest
     loadCustomClientTruststore();
     testTLSConnectNoClientKeystore();
     testTLSConnectWithClientKeystore();
+    testTLSConnectWithProtocol("SSLv3");
+    testTLSConnectWithProtocol("TLSv1");
+    testTLSConnectWithProtocol("TLSv1.1");
+    testTLSConnectWithProtocol("TLSv1.2");
+    testTLSConnectWithProtocol("TLSv1.3");
   }
 
   private void checkJavaSystemProperties()
   {
-    TLSTestData data = new TLSTestData("client.JavaSystemProperties");
+    TLSTestData data = new TLSTestData("client.JavaSystemProperties", "Checks all Java system properties relavant for establishing a TLS connection.<br/>This test will never fail.");
 
     data.addEntry(getPropInfo(PROP_KEYSTORE, "", false));
     data.addEntry(getPropInfo(PROP_KEYSTORE_PWD, "", true));
@@ -92,7 +96,7 @@ public final class TLSTest
   
   private void checkIvySystemProperties()
   {
-    TLSTestData data = new TLSTestData("client.IvySystemProperties");
+    TLSTestData data = new TLSTestData("client.IvySystemProperties", "Checks Ivy specific system properties relevant for establishing a TLS connection.<br/>This test will never fail.");
     String notBeUsed = "NOT be used - skipping";
     String toBeUsed = "be used";
     
@@ -110,7 +114,7 @@ public final class TLSTest
 
   private void loadSystemKeystore()
   {
-    TLSTestData data = new TLSTestData("client.KeyStore");
+    TLSTestData data = new TLSTestData("client.KeyStore", "Tries to load the system client keystore file, if configured.");
     String storeFilename = System.getProperty(PROP_KEYSTORE);
     if (StringUtils.isBlank(storeFilename))
     {
@@ -125,7 +129,7 @@ public final class TLSTest
 
   private void loadClientTruststore()
   {
-    TLSTestData data = new TLSTestData("client.TrustStore");
+    TLSTestData data = new TLSTestData("client.TrustStore", "Tries to load the system client truststore file.");
     String storeFilename = System.getProperty(PROP_TRUSTSTORE);
     if (StringUtils.isBlank(storeFilename))
     {
@@ -139,7 +143,7 @@ public final class TLSTest
   
   private void loadCustomClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.CustomKeyStore");
+    TLSTestData data = new TLSTestData("client.CustomKeyStore", "Tries to load the custom client keystore file, if configured.");
     if (!sslClientSettings.useCustomKeyStore())
     {
       data.addEntry("Custom client KeyStore set to NOT be used - skipping");
@@ -153,7 +157,7 @@ public final class TLSTest
   
   private void loadCustomClientTruststore()
   {
-    TLSTestData data = new TLSTestData("client.CustomTrustStore");
+    TLSTestData data = new TLSTestData("client.CustomTrustStore", "Tries to load the custom client trusture file, if configured.");
     if (!sslClientSettings.useCustomTrustStore())
     {
       data.addEntry("Custom client TrustStore set to NOT be used - skipping");
@@ -167,24 +171,31 @@ public final class TLSTest
 
   private void testTLSConnectNoClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.Connect.NoClientKeystore");
-    connectToTarget(customTrustStore, systemTrustStore, null, null, data);
+    TLSTestData data = new TLSTestData("client.Connect.NoClientKeystore", "Tries to connect to the specified URI with no client keystore.");
+    connectToTarget(customTrustStore, systemTrustStore, null, null, data, "TLS");
     logs.add(data);
   }
 
   private void testTLSConnectWithClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.Connect.WithClientKeystore");
-    connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data);
+    TLSTestData data = new TLSTestData("client.Connect.WithClientKeystore", "Tries to connect to the specified URI with no client keystore.");
+    connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, "TLS");
     logs.add(data);
   }
 
-private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeyStoreInfo customKS, KeyStoreInfo systemKS, TLSTestData data)
+  private void testTLSConnectWithProtocol(String protocol)
+  {
+	TLSTestData data = new TLSTestData("client.Connect." + protocol, "Tries to connect to the specified URI with TLS protocol version " + protocol);
+    connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, protocol);
+    logs.add(data);
+  }
+
+  private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeyStoreInfo customKS, KeyStoreInfo systemKS, TLSTestData data, String protocol)
   {
 	try
     {
-      SSLSocketFactory sslSocketFactory = TLSUtils.getSSLSocketFactory("TLS", customTS, systemTS, customKS, systemKS);
-      data.addEntry("SSLSocketFactory created.");
+      SSLSocketFactory sslSocketFactory = TLSUtils.getSSLSocketFactory(protocol, customTS, systemTS, customKS, systemKS);
+      data.addEntry("SSLSocketFactory created, setting protocol '%1$s'", protocol);
       URI uri = new URI(targetUri);
       int port = uri.getPort() < 1 ? 443 : uri.getPort();
       data.addEntry("Creating SSLSocket to host %1$s on port %2$d.", uri.getHost(), port);
@@ -219,7 +230,7 @@ private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeySt
     }
     catch (Exception ex)
     {
-        data.addEntry("Connection to %1$s FAILED!", targetUri);
+        data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
         data.setSuccess(false);
         Ivy.log().error("Error connecting to {0}.", ex, targetUri);
     }
@@ -257,13 +268,10 @@ private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeySt
 
   private static void addKeyStoreInfo(KeyStore store, char[] passwd, TLSTestData data) throws Exception
   {
-    if (store.size() == 0)
-    {
-      data.addEntry("No cert aliases found - store seems to be empty");
-      return;
-    }
+    boolean hasEntries = false;
     for (Enumeration<String> aliases = store.aliases(); aliases.hasMoreElements();)
     {
+      hasEntries = true;
       String alias = aliases.nextElement();
       if (store.isKeyEntry(alias))
       {
@@ -271,6 +279,11 @@ private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeySt
       }
       data.addEntry("Cert alias found: " + alias
               + " (" + getCertInfo(store.getCertificate(alias)) + ")");
+    }
+    if (!hasEntries)
+    {
+      data.addEntry("No cert aliases found - store seems to be empty");
+      return;
     }
   }
   

@@ -139,6 +139,7 @@ public class TLSUtils
   }
   
   static class KeyStoreInfo {
+	  static final KeyStoreInfo EMPTY = new KeyStoreInfo(null, null);
 	  private final KeyStore keyStore;
 	  private final char[] password;
 	  
