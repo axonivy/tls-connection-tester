@@ -69,17 +69,17 @@ public final class TLSTest
     loadCustomClientTruststore();
     testTLSConnectNoClientKeystore();
     testTLSConnectWithClientKeystore();
-    testTLSConnectWithIvySslSettings();
-    testTLSConnectWithProtocol("SSLv3");
-    testTLSConnectWithProtocol("TLSv1");
-    testTLSConnectWithProtocol("TLSv1.1");
-    testTLSConnectWithProtocol("TLSv1.2");
-    testTLSConnectWithProtocol("TLSv1.3");
+    testTLSConnectWithIvySslContext();
+    testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_SSLV3, "SSLv3");
+    testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV10, "TLSv1");
+    testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV11, "TLSv1.1");
+    testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV12, "TLSv1.2");
+    testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV13, "TLSv1.3");
   }
 
   private void checkJavaSystemProperties()
   {
-    TLSTestData data = new TLSTestData("client.JavaSystemProperties", "Checks all Java system properties relavant for establishing a TLS connection.<br/>This test will never fail.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.JAVA_SYSTEM_PROPERTIES);
 
     data.addEntry(getPropInfo(PROP_KEYSTORE, "", false));
     data.addEntry(getPropInfo(PROP_KEYSTORE_PWD, "", true));
@@ -97,7 +97,7 @@ public final class TLSTest
   
   private void checkIvySystemProperties()
   {
-    TLSTestData data = new TLSTestData("client.IvySystemProperties", "Checks Ivy specific system properties relevant for establishing a TLS connection.<br/>This test will never fail.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.IVY_SYSTEM_PROPERTIES);
     String notBeUsed = "NOT be used - skipping";
     String toBeUsed = "be used";
     
@@ -115,7 +115,7 @@ public final class TLSTest
 
   private void loadSystemKeystore()
   {
-    TLSTestData data = new TLSTestData("client.KeyStore", "Tries to load the system client keystore file, if configured.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_SYSTEM_KEYSTORE);
     String storeFilename = System.getProperty(PROP_KEYSTORE);
     if (StringUtils.isBlank(storeFilename))
     {
@@ -130,7 +130,7 @@ public final class TLSTest
 
   private void loadClientTruststore()
   {
-    TLSTestData data = new TLSTestData("client.TrustStore", "Tries to load the system client truststore file.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_SYSTEM_TRUSTSTORE);
     String storeFilename = System.getProperty(PROP_TRUSTSTORE);
     if (StringUtils.isBlank(storeFilename))
     {
@@ -144,7 +144,7 @@ public final class TLSTest
   
   private void loadCustomClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.CustomKeyStore", "Tries to load the custom client keystore file, if configured.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_KEYSTORE);
     if (!sslClientSettings.useCustomKeyStore())
     {
       data.addEntry("Custom client KeyStore set to NOT be used - skipping");
@@ -158,7 +158,7 @@ public final class TLSTest
   
   private void loadCustomClientTruststore()
   {
-    TLSTestData data = new TLSTestData("client.CustomTrustStore", "Tries to load the custom client trusture file, if configured.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_TRUSTSTORE);
     if (!sslClientSettings.useCustomTrustStore())
     {
       data.addEntry("Custom client TrustStore set to NOT be used - skipping");
@@ -172,28 +172,28 @@ public final class TLSTest
 
   private void testTLSConnectNoClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.Connect.NoClientKeystore", "Tries to connect to the specified URI with no client keystore.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CONN_NO_KEYSTORE);
     connectToTarget(customTrustStore, systemTrustStore, null, null, data, "TLS");
     logs.add(data);
   }
 
   private void testTLSConnectWithClientKeystore()
   {
-    TLSTestData data = new TLSTestData("client.Connect.WithClientKeystore", "Tries to connect to the specified URI with no client keystore.");
+    TLSTestData data = new TLSTestData(TLSTestGroup.CONN_WITH_KEYSTORE);
     connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, "TLS");
     logs.add(data);
   }
 
-  private void testTLSConnectWithIvySslSettings()
+  private void testTLSConnectWithIvySslContext()
   {
-	TLSTestData data = new TLSTestData("client.Connect.WithIvySslSettings", "Tries to connect to the specified URI with the Ivy SSL settings.<br/>TLS connections for WebServices, CXF RestServices and secure mail are using these settings.");
+	TLSTestData data = new TLSTestData(TLSTestGroup.CONN_IVY_SSL_CONTEXT);
     connectToTargetWithIvySsl(data);
     logs.add(data);
   }
 
-  private void testTLSConnectWithProtocol(String protocol)
+  private void testTLSConnectWithProtocol(TLSTestGroup testGroup, String protocol)
   {
-	TLSTestData data = new TLSTestData("client.Connect." + protocol, "Tries to connect to the specified URI with TLS protocol version " + protocol);
+	TLSTestData data = new TLSTestData(testGroup);
     connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, protocol);
     logs.add(data);
   }

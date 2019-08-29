@@ -4,36 +4,24 @@ import ch.ivyteam.ivy.scripting.objects.List;
 
 public final class TLSTestData
 {
-  private String testGroup;
-  private String groupInfo;
+  private TLSTestGroup testGroup;
   private List<String> entryList;
   private boolean success = true;
 
-  public TLSTestData(String group, String groupInfo)
+  public TLSTestData(TLSTestGroup testGroup)
   {
-    this.testGroup = group;
-    this.groupInfo = groupInfo;
+    this.testGroup = testGroup;
     this.entryList = new List<>();
   }
 
   public String getGroup()
   {
-    return testGroup;
-  }
-
-  public void setGroup(String group)
-  {
-    this.testGroup = group;
+    return testGroup.getGroupName();
   }
 
   public String getGroupInfo()
   {
-    return groupInfo;
-  }
-
-  public void setGroupInfo(String groupInfo)
-  {
-    this.groupInfo = groupInfo;
+    return testGroup.getGroupInfo();
   }
   
   public void addEntry(String newEntry)
