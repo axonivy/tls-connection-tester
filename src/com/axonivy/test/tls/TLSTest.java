@@ -69,6 +69,7 @@ public final class TLSTest
     loadCustomClientTruststore();
     testTLSConnectNoClientKeystore();
     testTLSConnectWithClientKeystore();
+    testTLSConnectWithIvySslSettings();
     testTLSConnectWithProtocol("SSLv3");
     testTLSConnectWithProtocol("TLSv1");
     testTLSConnectWithProtocol("TLSv1.1");
@@ -183,11 +184,37 @@ public final class TLSTest
     logs.add(data);
   }
 
+  private void testTLSConnectWithIvySslSettings()
+  {
+	TLSTestData data = new TLSTestData("client.Connect.WithIvySslSettings", "Tries to connect to the specified URI with the Ivy SSL settings.<br/>TLS connections for WebServices, CXF RestServices and secure mail are using these settings.");
+    connectToTargetWithIvySsl(data);
+    logs.add(data);
+  }
+
   private void testTLSConnectWithProtocol(String protocol)
   {
 	TLSTestData data = new TLSTestData("client.Connect." + protocol, "Tries to connect to the specified URI with TLS protocol version " + protocol);
     connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, protocol);
     logs.add(data);
+  }
+
+  private void connectToTargetWithIvySsl(TLSTestData data)
+  {
+	try
+    {
+	  SSLSocketFactory sslSocketFactory = TLSUtils.getIvySSLSocketFactory(sslClientSettings);
+	  connectWithTLS(data, sslSocketFactory);
+	}
+    catch (Exception ex)
+    {
+	  handleConnectException(data, ex);
+    }
+  }
+
+  private void handleConnectException(TLSTestData data, Exception ex) {
+	data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
+	data.setSuccess(false);
+	Ivy.log().error("Error connecting to {0}.", ex, targetUri);
   }
 
   private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeyStoreInfo customKS, KeyStoreInfo systemKS, TLSTestData data, String protocol)
@@ -196,45 +223,47 @@ public final class TLSTest
     {
       SSLSocketFactory sslSocketFactory = TLSUtils.getSSLSocketFactory(protocol, customTS, systemTS, customKS, systemKS);
       data.addEntry("SSLSocketFactory created, setting protocol '%1$s'", protocol);
-      URI uri = new URI(targetUri);
-      int port = uri.getPort() < 1 ? 443 : uri.getPort();
-      data.addEntry("Creating SSLSocket to host %1$s on port %2$d.", uri.getHost(), port);
-      SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(uri.getHost(), port);
-      data.addEntry("SSLSocket created.");
-      socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
-		@Override
-		public void handshakeCompleted(HandshakeCompletedEvent event) {
-	      try {
-			data.addEntry("SSLSocket handshake finished. Session Info is below.");
-			data.addEntry("Protocol   : %1$s", event.getSession().getProtocol());
-			data.addEntry("CipherSuite: %1$s", event.getCipherSuite());
-			Certificate[] peerCerts = event.getPeerCertificates();
-			for (int i = 0; i < peerCerts.length; i++) {
-				data.addEntry("PeerCert [%1$d]: %2$s", i, getCertInfo(peerCerts[i]));
-			}
-			Certificate[] localCerts = event.getLocalCertificates();
-			if (localCerts != null) {
-				for (int i = 0; i < localCerts.length; i++) {
-					data.addEntry("LocalCert [%1$d]: %2$s", i, getCertInfo(localCerts[i]));
-				}
-			} else {
-				data.addEntry("No client certificates used.");
-			}
-		  } catch (SSLPeerUnverifiedException e) {
-			throw new RuntimeException(e);
-		  }
-		}
-      });
-      socket.startHandshake();
-      data.addEntry("Successfully connected to %1$s!", targetUri);
+      connectWithTLS(data, sslSocketFactory);
     }
     catch (Exception ex)
     {
-        data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
-        data.setSuccess(false);
-        Ivy.log().error("Error connecting to {0}.", ex, targetUri);
+    	handleConnectException(data, ex);
     }
   }
+
+  private void connectWithTLS(TLSTestData data, SSLSocketFactory sslSocketFactory) throws Exception {
+	URI uri = new URI(targetUri);
+	int port = uri.getPort() < 1 ? 443 : uri.getPort();
+	data.addEntry("Creating SSLSocket to host %1$s on port %2$d.", uri.getHost(), port);
+	SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(uri.getHost(), port);
+	data.addEntry("SSLSocket created.");
+	socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
+		@Override
+		public void handshakeCompleted(HandshakeCompletedEvent event) {
+			try {
+				data.addEntry("SSLSocket handshake finished. Session Info is below.");
+				data.addEntry("Protocol   : %1$s", event.getSession().getProtocol());
+				data.addEntry("CipherSuite: %1$s", event.getCipherSuite());
+				Certificate[] peerCerts = event.getPeerCertificates();
+				for (int i = 0; i < peerCerts.length; i++) {
+					data.addEntry("PeerCert [%1$d]: %2$s", i, getCertInfo(peerCerts[i]));
+				}
+				Certificate[] localCerts = event.getLocalCertificates();
+				if (localCerts != null) {
+					for (int i = 0; i < localCerts.length; i++) {
+						data.addEntry("LocalCert [%1$d]: %2$s", i, getCertInfo(localCerts[i]));
+					}
+				} else {
+					data.addEntry("No client certificates used.");
+				}
+			} catch (SSLPeerUnverifiedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	});
+	socket.startHandshake();
+	data.addEntry("Successfully connected to %1$s!", targetUri);
+}
 
   private static KeyStoreInfo loadKeyStore(String storeFilename, String propPwd, String propType,
         String propProv, String storeText, TLSTestData data)

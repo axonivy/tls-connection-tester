@@ -25,6 +25,11 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ch.ivyteam.ivy.ssl.restricted.ISslConfig;
+import ch.ivyteam.ivy.ssl.restricted.IvySslContext;
+import ch.ivyteam.ivy.ssl.restricted.SslSettings;
+import ch.ivyteam.util.net.SSLUtil;
+
 public class TLSUtils
 {
   public static KeyStore loadKeyStore(String filename, char[] password, String type, String provider)
@@ -38,6 +43,13 @@ public class TLSUtils
       ks.load(in, storePass);
       return ks;
     }
+  }
+  
+  public static SSLSocketFactory getIvySSLSocketFactory(SslSettings settings)
+  {
+	  ISslConfig ivySslConfig = new SSLConfig(settings);
+	  IvySslContext ivyContext = new IvySslContext(ivySslConfig);
+	  return ivyContext.getSocketFactory();
   }
 
   public static SSLSocketFactory getSSLSocketFactory(String protocol, KeyStoreInfo customTS,
@@ -158,5 +170,35 @@ public class TLSUtils
 	  {
 		  return this.password;
 	  }
+  }
+  
+  static class SSLConfig implements ISslConfig {
+	  
+	private final SslSettings settings;
+
+	SSLConfig(SslSettings settings)
+	{
+		this.settings = settings;
+	}
+
+	@Override
+	public String getKeyAlias() {
+		return "";
+	}
+
+	@Override
+	public SslSettings getSettings() {
+		return settings;
+	}
+
+	@Override
+	public String getProtocol() {
+		return SSLUtil.DEFAULT_PROTOCOL;
+	}
+
+	@Override
+	public boolean useKey() {
+		return !StringUtils.isBlank(getKeyAlias());
+	}
   }
 }
