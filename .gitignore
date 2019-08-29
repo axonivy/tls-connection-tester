@@ -7,3 +7,6 @@
 
 # Eclipse
 .settings/
+
+# Ivy
+/src_dataClasses

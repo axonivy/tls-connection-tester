@@ -17,8 +17,8 @@ public enum TLSTestGroup
 	CONN_TLS_TLSV12("TLSv1.2"),
 	CONN_TLS_TLSV13("TLSv1.3");
 
-	private final String groupName;
-	private final String groupInfo;
+	private final String name;
+	private final String info;
 	
 	TLSTestGroup(String protocol)
 	{
@@ -27,17 +27,17 @@ public enum TLSTestGroup
 	
 	TLSTestGroup(String groupName, String groupInfo)
 	{
-		this.groupName = groupName;
-		this.groupInfo = groupInfo;
+		this.name = groupName;
+		this.info = groupInfo;
 	}
 	
-	public String getGroupName()
+	public String getName()
 	{
-		return this.groupName;
+		return this.name;
 	}
 	
-	public String getGroupInfo()
+	public String getInfo()
 	{
-		return this.groupInfo;
+		return this.info;
 	}
 }

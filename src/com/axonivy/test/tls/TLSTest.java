@@ -91,6 +91,7 @@ public final class TLSTest
     data.addEntry(getPropInfo(PROP_TRUSTSTORE_PROV, "", false));
     data.addEntry(getPropInfo(PROP_HTTPS_PROTOCOLS, "", false));
     data.addEntry(getPropInfo(PROP_TLS_PROTOCOLS, "", false));
+    data.setResult(2);
 
     logs.add(data);
   }
@@ -109,6 +110,7 @@ public final class TLSTest
     data.addEntry(STORE_SETTING_TXT, "System", "TrustStore", usage);
     usage = sslClientSettings.useCustomTrustStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "Custom", "TrustStore", usage);
+    data.setResult(2);
     
     logs.add(data);
   }
@@ -120,6 +122,7 @@ public final class TLSTest
     if (StringUtils.isBlank(storeFilename))
     {
       data.addEntry("No client KeyStore file defined - skipping");
+      data.setResult(2);
     }
     else
     {
@@ -148,6 +151,7 @@ public final class TLSTest
     if (!sslClientSettings.useCustomKeyStore())
     {
       data.addEntry("Custom client KeyStore set to NOT be used - skipping");
+      data.setResult(2);
     }
     else
     {
@@ -162,6 +166,7 @@ public final class TLSTest
     if (!sslClientSettings.useCustomTrustStore())
     {
       data.addEntry("Custom client TrustStore set to NOT be used - skipping");
+      data.setResult(2);
     }
     else
     {
@@ -213,7 +218,7 @@ public final class TLSTest
 
   private void handleConnectException(TLSTestData data, Exception ex) {
 	data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
-	data.setSuccess(false);
+	data.setResult(0);
 	Ivy.log().error("Error connecting to {0}.", ex, targetUri);
   }
 
@@ -289,7 +294,7 @@ public final class TLSTest
     catch (Exception ex)
     {
       data.addEntry("Error loading client %1$s: %2$s - ignoring", storeText, ex.getMessage());
-      data.setSuccess(false);
+      data.setResult(0);
       Ivy.log().error("Error loading {0} file {1}.", ex, storeText, storeFilename);
     }
     return new KeyStoreInfo(keyStore, ksPwd);

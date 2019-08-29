@@ -17,7 +17,7 @@
 			<h:form id="form">
 				<p:outputLabel value="TLS Target URI" for="targetUri" />
 				<p:inputText value="#{data.targetUri}" id="targetUri" disabled="true" size="100" />
-				<p:dataTable value="#{data.logList}" var="logEntry" rowStyleClass="#{logEntry.success == true ? 'success' : 'fail'}" id="logList" >
+				<p:dataTable value="#{data.logList}" var="logEntry" rowStyleClass="#{logEntry.result == 0 ? 'fail' : (logEntry.result == 1 ? 'success' : 'info')}" id="logList" >
 					<p:column style="width:16px">
             			<p:rowToggler />
         			</p:column>
@@ -25,7 +25,7 @@
 						<h:outputText value="#{logEntry.group}"></h:outputText>
 					</p:column>
 					<p:column headerText="Execution Success">
-					    <h:outputText style="float:left" styleClass="fa fa-fw fa-2x #{logEntry.success == true ? 'fa-check-square-o' : 'fa-close'}"/>
+					    <h:outputText style="float:left" styleClass="fa fa-fw fa-2x #{logEntry.result > 0  ? 'fa-check-square-o' : 'fa-close'}"/>
 					</p:column>
         			<p:column style="width:40px;text-align:center">
 						<p:commandLink update=":form:groupDetail" oncomplete="PF('groupInfo').show()" style="background-color:transparent" title="Info">
@@ -42,7 +42,7 @@
 					</p:rowExpansion>
 				</p:dataTable>
 				<p:dialog header="Group Info" widgetVar="groupInfo" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-					<p:outputPanel id="groupDetail" style="text-align:center;">
+					<p:outputPanel id="groupDetail">
 						<h:outputText value="#{data.groupInfo}" escape="false" />
 					</p:outputPanel>
 				</p:dialog>

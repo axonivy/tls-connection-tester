@@ -6,7 +6,7 @@ public final class TLSTestData
 {
   private TLSTestGroup testGroup;
   private List<String> entryList;
-  private boolean success = true;
+  private int result = 1;
 
   public TLSTestData(TLSTestGroup testGroup)
   {
@@ -16,12 +16,12 @@ public final class TLSTestData
 
   public String getGroup()
   {
-    return testGroup.getGroupName();
+    return testGroup.getName();
   }
 
   public String getGroupInfo()
   {
-    return testGroup.getGroupInfo();
+    return testGroup.getInfo();
   }
   
   public void addEntry(String newEntry)
@@ -44,22 +44,27 @@ public final class TLSTestData
     this.entryList = newEntryList;
   }
 
-  public boolean isSuccess() {
-	return success;
-}
+  /**
+   * Returns result of test. Default is 1.
+   * @return 0 for fail, 1 for success, 2 for infoOnly.
+   */
+  public int getResult() {
+	return result;
+  }
 
-public void setSuccess(boolean success) {
-	this.success = success;
-}
+  public void setResult(int result) {
+	this.result = result;
+  }
 
-@Override
+  @Override
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append("Entry for group " + this.testGroup + ":\n");
+    builder.append("Entry for group " + this.testGroup.getName() + ":\n");
+    builder.append("  result: " + this.result + ":\n");
     for (String entry : this.entryList)
     {
-      builder.append("  - " + entry);
+      builder.append("  - " + entry + "\n");
     }
     return builder.toString();
   }
