@@ -4,3 +4,13 @@ targetUri String #field
 targetUri PERSISTENT #fieldModifier
 logList List<com.axonivy.test.tls.TLSTestData> #field
 logList PERSISTENT #fieldModifier
+useSpecialTruststore Boolean #field
+useSpecialTruststore PERSISTENT #fieldModifier
+specialTruststore String #field
+specialTruststore PERSISTENT #fieldModifier
+specialTruststorePwd String #field
+specialTruststorePwd PERSISTENT #fieldModifier
+truststoreError ch.ivyteam.ivy.bpm.error.BpmError #field
+truststoreError PERSISTENT #fieldModifier
+truststoreFile File #field
+truststoreFile PERSISTENT #fieldModifier

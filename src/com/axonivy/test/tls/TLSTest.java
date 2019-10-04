@@ -23,6 +23,7 @@ import com.axonivy.test.tls.TLSUtils.KeyStoreInfo;
 
 import ch.ivyteam.di.restricted.DiCore;
 import ch.ivyteam.ivy.environment.Ivy;
+import ch.ivyteam.ivy.scripting.objects.File;
 import ch.ivyteam.ivy.ssl.restricted.SslClientSettings;
 
 public final class TLSTest
@@ -52,13 +53,12 @@ public final class TLSTest
   private KeyStoreInfo customKeyStore = KeyStoreInfo.EMPTY;
   private KeyStoreInfo customTrustStore = KeyStoreInfo.EMPTY;
 
-  public TLSTest(List<TLSTestData> logs, String targetUri)
-  {
+  public TLSTest(List<TLSTestData> logs, String targetUri) {
     this.logs = logs;
     this.targetUri = targetUri;
     this.sslClientSettings = DiCore.getGlobalInjector().getInstance(SslClientSettings.class);
   }
-  
+
   public void runTLSTests()
   {
     checkJavaSystemProperties();
@@ -67,6 +67,7 @@ public final class TLSTest
     loadClientTruststore();
     loadCustomClientKeystore();
     loadCustomClientTruststore();
+    testTLSConnectWithSystemTruststore();
     testTLSConnectNoClientKeystore();
     testTLSConnectWithClientKeystore();
     testTLSConnectWithIvySslContext();
@@ -75,6 +76,12 @@ public final class TLSTest
     testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV11, "TLSv1.1");
     testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV12, "TLSv1.2");
     testTLSConnectWithProtocol(TLSTestGroup.CONN_TLS_TLSV13, "TLSv1.3");
+  }
+
+  public void runTLSTestsWithSpecificTruststore(File trustFile, char[] password)
+  {
+    runTLSTests();
+    testTLSConnectWithUploadedTruststore(trustFile, password);
   }
 
   private void checkJavaSystemProperties()
@@ -95,13 +102,13 @@ public final class TLSTest
 
     logs.add(data);
   }
-  
+
   private void checkIvySystemProperties()
   {
     TLSTestData data = new TLSTestData(TLSTestGroup.IVY_SYSTEM_PROPERTIES);
     String notBeUsed = "NOT be used - skipping";
     String toBeUsed = "be used";
-    
+
     String usage = sslClientSettings.useSystemKeyStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "System", "KeyStore", usage);
     usage = sslClientSettings.useCustomKeyStore() ? toBeUsed : notBeUsed;
@@ -111,7 +118,7 @@ public final class TLSTest
     usage = sslClientSettings.useCustomTrustStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "Custom", "TrustStore", usage);
     data.setResult(2);
-    
+
     logs.add(data);
   }
 
@@ -123,10 +130,10 @@ public final class TLSTest
     {
       data.addEntry("No client KeyStore file defined - skipping");
       data.setResult(2);
-    }
-    else
+    } else
     {
-      systemKeyStore = loadKeyStore(storeFilename, PROP_KEYSTORE_PWD, PROP_KEYSTORE_TYPE, PROP_KEYSTORE_PROV, "KeyStore", data);      
+      systemKeyStore = loadKeyStore(storeFilename, PROP_KEYSTORE_PWD, PROP_KEYSTORE_TYPE, PROP_KEYSTORE_PROV,
+          "KeyStore", data);
     }
     logs.add(data);
   }
@@ -140,11 +147,12 @@ public final class TLSTest
       data.addEntry("No client TrustStore file defined - using default cacert");
       storeFilename = System.getProperty("java.home") + "/lib/security/cacerts";
     }
-    systemTrustStore = loadKeyStore(storeFilename, PROP_TRUSTSTORE_PWD, PROP_TRUSTSTORE_TYPE, PROP_TRUSTSTORE_PROV, "TrustStore", data);
+    systemTrustStore = loadKeyStore(storeFilename, PROP_TRUSTSTORE_PWD, PROP_TRUSTSTORE_TYPE, PROP_TRUSTSTORE_PROV,
+        "TrustStore", data);
 
     logs.add(data);
   }
-  
+
   private void loadCustomClientKeystore()
   {
     TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_KEYSTORE);
@@ -152,14 +160,15 @@ public final class TLSTest
     {
       data.addEntry("Custom client KeyStore set to NOT be used - skipping");
       data.setResult(2);
-    }
-    else
+    } else
     {
-      customKeyStore = loadKeyStore(sslClientSettings.getKeyStoreFile(), sslClientSettings.getKeyPassword().toCharArray(), sslClientSettings.getKeyStoreType(), sslClientSettings.getKeyStoreProvider(), "CustomKeyStore", data);      
+      customKeyStore = loadKeyStore(sslClientSettings.getKeyStoreFile(), sslClientSettings.getKeyPassword()
+          .toCharArray(), sslClientSettings.getKeyStoreType(), sslClientSettings.getKeyStoreProvider(),
+          "CustomKeyStore", data);
     }
     logs.add(data);
   }
-  
+
   private void loadCustomClientTruststore()
   {
     TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_TRUSTSTORE);
@@ -167,11 +176,19 @@ public final class TLSTest
     {
       data.addEntry("Custom client TrustStore set to NOT be used - skipping");
       data.setResult(2);
-    }
-    else
+    } else
     {
-      customTrustStore = loadKeyStore(sslClientSettings.getTrustStoreFile(), sslClientSettings.getTrustStorePassword().toCharArray(), sslClientSettings.getTrustStoreType(), sslClientSettings.getTrustStoreProvider(), "CustomTrustStore", data);      
+      customTrustStore = loadKeyStore(sslClientSettings.getTrustStoreFile(), sslClientSettings.getTrustStorePassword()
+          .toCharArray(), sslClientSettings.getTrustStoreType(), sslClientSettings.getTrustStoreProvider(),
+          "CustomTrustStore", data);
     }
+    logs.add(data);
+  }
+
+  private void testTLSConnectWithSystemTruststore()
+  {
+    TLSTestData data = new TLSTestData(TLSTestGroup.CONN_WITH_SYSTEM_TRUSTSTORE);
+    connectToTarget(KeyStoreInfo.EMPTY, systemTrustStore, null, null, data, "TLS");
     logs.add(data);
   }
 
@@ -189,98 +206,117 @@ public final class TLSTest
     logs.add(data);
   }
 
+  private void testTLSConnectWithUploadedTruststore(File truststore, char[] password)
+  {
+    TLSTestData data = new TLSTestData(TLSTestGroup.CONN_UPLOADED_TRUSTSTORE);
+    KeyStoreInfo customTrustStore = loadKeyStore(truststore.getAbsolutePath(), password, null, null,
+        "UserTrustStore", data);
+    connectToTarget(customTrustStore, KeyStoreInfo.EMPTY, null, null, data, "TLS");
+    logs.add(data);
+  }
+
   private void testTLSConnectWithIvySslContext()
   {
-	TLSTestData data = new TLSTestData(TLSTestGroup.CONN_IVY_SSL_CONTEXT);
+    TLSTestData data = new TLSTestData(TLSTestGroup.CONN_IVY_SSL_CONTEXT);
     connectToTargetWithIvySsl(data);
     logs.add(data);
   }
 
   private void testTLSConnectWithProtocol(TLSTestGroup testGroup, String protocol)
   {
-	TLSTestData data = new TLSTestData(testGroup);
+    TLSTestData data = new TLSTestData(testGroup);
     connectToTarget(customTrustStore, systemTrustStore, customKeyStore, systemKeyStore, data, protocol);
     logs.add(data);
   }
 
   private void connectToTargetWithIvySsl(TLSTestData data)
   {
-	try
+    try
     {
-	  SSLSocketFactory sslSocketFactory = TLSUtils.getIvySSLSocketFactory(sslClientSettings);
-	  connectWithTLS(data, sslSocketFactory);
-	}
-    catch (Exception ex)
+      SSLSocketFactory sslSocketFactory = TLSUtils.getIvySSLSocketFactory(sslClientSettings);
+      connectWithTLS(data, sslSocketFactory);
+    } catch (Exception ex)
     {
-	  handleConnectException(data, ex);
+      handleConnectException(data, ex);
     }
   }
 
-  private void handleConnectException(TLSTestData data, Exception ex) {
-	data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
-	data.setResult(0);
-	Ivy.log().error("Error connecting to {0}.", ex, targetUri);
+  private void handleConnectException(TLSTestData data, Exception ex)
+  {
+    data.addEntry("Connection to %1$s FAILED! Error message is: %2$s", targetUri, ex.getMessage());
+    data.setResult(0);
+    Ivy.log().error("Error connecting to {0}.", ex, targetUri);
   }
 
-  private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeyStoreInfo customKS, KeyStoreInfo systemKS, TLSTestData data, String protocol)
+  private void connectToTarget(KeyStoreInfo customTS, KeyStoreInfo systemTS, KeyStoreInfo customKS,
+      KeyStoreInfo systemKS, TLSTestData data, String protocol)
   {
-	try
+    try
     {
-      SSLSocketFactory sslSocketFactory = TLSUtils.getSSLSocketFactory(protocol, customTS, systemTS, customKS, systemKS);
+      SSLSocketFactory sslSocketFactory = TLSUtils
+          .getSSLSocketFactory(protocol, customTS, systemTS, customKS, systemKS);
       data.addEntry("SSLSocketFactory created, setting protocol '%1$s'", protocol);
       connectWithTLS(data, sslSocketFactory);
-    }
-    catch (Exception ex)
+    } catch (Exception ex)
     {
-    	handleConnectException(data, ex);
+      handleConnectException(data, ex);
     }
   }
 
-  private void connectWithTLS(TLSTestData data, SSLSocketFactory sslSocketFactory) throws Exception {
-	URI uri = new URI(targetUri);
-	int port = uri.getPort() < 1 ? 443 : uri.getPort();
-	data.addEntry("Creating SSLSocket to host %1$s on port %2$d.", uri.getHost(), port);
-	SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(uri.getHost(), port);
-	data.addEntry("SSLSocket created.");
-	socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
-		@Override
-		public void handshakeCompleted(HandshakeCompletedEvent event) {
-			try {
-				data.addEntry("SSLSocket handshake finished. Session Info is below.");
-				data.addEntry("Protocol   : %1$s", event.getSession().getProtocol());
-				data.addEntry("CipherSuite: %1$s", event.getCipherSuite());
-				Certificate[] peerCerts = event.getPeerCertificates();
-				for (int i = 0; i < peerCerts.length; i++) {
-					data.addEntry("PeerCert [%1$d]: %2$s", i, getCertInfo(peerCerts[i]));
-				}
-				Certificate[] localCerts = event.getLocalCertificates();
-				if (localCerts != null) {
-					for (int i = 0; i < localCerts.length; i++) {
-						data.addEntry("LocalCert [%1$d]: %2$s", i, getCertInfo(localCerts[i]));
-					}
-				} else {
-					data.addEntry("No client certificates used.");
-				}
-			} catch (SSLPeerUnverifiedException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	});
-	socket.startHandshake();
-	data.addEntry("Successfully connected to %1$s!", targetUri);
-}
+  private void connectWithTLS(TLSTestData data, SSLSocketFactory sslSocketFactory) throws Exception
+  {
+    URI uri = new URI(targetUri);
+    int port = uri.getPort() < 1 ? 443 : uri.getPort();
+    data.addEntry("Creating SSLSocket to host %1$s on port %2$d.", uri.getHost(), port);
+    SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(uri.getHost(), port);
+    data.addEntry("SSLSocket created.");
+    socket.addHandshakeCompletedListener(new HandshakeCompletedListener()
+    {
+      @Override
+      public void handshakeCompleted(HandshakeCompletedEvent event)
+      {
+        try
+        {
+          data.addEntry("SSLSocket handshake finished. Session Info is below.");
+          data.addEntry("Protocol   : %1$s", event.getSession().getProtocol());
+          data.addEntry("CipherSuite: %1$s", event.getCipherSuite());
+          Certificate[] peerCerts = event.getPeerCertificates();
+          for (int i = 0; i < peerCerts.length; i++)
+          {
+            data.addEntry("PeerCert [%1$d]: %2$s", i, getCertInfo(peerCerts[i]));
+          }
+          Certificate[] localCerts = event.getLocalCertificates();
+          if (localCerts != null)
+          {
+            for (int i = 0; i < localCerts.length; i++)
+            {
+              data.addEntry("LocalCert [%1$d]: %2$s", i, getCertInfo(localCerts[i]));
+            }
+          } else
+          {
+            data.addEntry("No client certificates used.");
+          }
+        } catch (SSLPeerUnverifiedException e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
+    });
+    socket.startHandshake();
+    data.addEntry("Successfully connected to %1$s!", targetUri);
+  }
 
-  private static KeyStoreInfo loadKeyStore(String storeFilename, String propPwd, String propType,
-        String propProv, String storeText, TLSTestData data)
+  private static KeyStoreInfo loadKeyStore(String storeFilename, String propPwd, String propType, String propProv,
+      String storeText, TLSTestData data)
   {
     char[] storePassword = System.getProperty(propPwd, "").toCharArray();
     String storeType = System.getProperty(propType, DEFAULT_STORE_TYPE);
     String storeProvider = System.getProperty(propProv);
-	return loadKeyStore(storeFilename, storePassword, storeType, storeProvider, storeText, data);
+    return loadKeyStore(storeFilename, storePassword, storeType, storeProvider, storeText, data);
   }
-  
-  private static KeyStoreInfo loadKeyStore(String storeFilename, char[] ksPwd, String ksType,
-          String ksProv, String storeText, TLSTestData data)
+
+  private static KeyStoreInfo loadKeyStore(String storeFilename, char[] ksPwd, String ksType, String ksProv,
+      String storeText, TLSTestData data)
   {
     KeyStore keyStore = null;
     try
@@ -290,8 +326,7 @@ public final class TLSTest
       data.addEntry("%1$s type: %2$s", storeText, keyStore.getType());
       data.addEntry("%1$s provider: %2$s", storeText, keyStore.getProvider().getName());
       addKeyStoreInfo(keyStore, ksPwd, data);
-    }
-    catch (Exception ex)
+    } catch (Exception ex)
     {
       data.addEntry("Error loading client %1$s: %2$s - ignoring", storeText, ex.getMessage());
       data.setResult(0);
@@ -309,10 +344,16 @@ public final class TLSTest
       String alias = aliases.nextElement();
       if (store.isKeyEntry(alias))
       {
-        data.addEntry("Key alias found: %1$s (alg=%2$s)", alias, store.getKey(alias, passwd).getAlgorithm());
+        try
+        {
+          data.addEntry("Key alias found: %1$s (alg=%2$s)", alias, store.getKey(alias, passwd).getAlgorithm());
+        }
+        catch (Exception ex)
+        {
+          data.addEntry("Error loading private key with alias '%1$s': %2$s - ignoring", alias, ex.getMessage());
+        }
       }
-      data.addEntry("Cert alias found: " + alias
-              + " (" + getCertInfo(store.getCertificate(alias)) + ")");
+      data.addEntry("Cert alias found: " + alias + " (" + getCertInfo(store.getCertificate(alias)) + ")");
     }
     if (!hasEntries)
     {
@@ -320,31 +361,29 @@ public final class TLSTest
       return;
     }
   }
-  
+
   private static String getCertInfo(Certificate cert)
   {
-      X509Certificate x509Cert = (X509Certificate) cert;
-      PublicKey pubKey = x509Cert.getPublicKey();
-      String issuerName = x509Cert.getIssuerDN().getName();
-      String subjectName = x509Cert.getSubjectDN().getName();
-	  return String.format("alg=%1$s, length=%2$d, issuer=%3$s, subject=%4$s.", 
-			  pubKey.getAlgorithm(),
-			  getBitLength(pubKey),
-			  issuerName.equals(subjectName) ? "selfSigned" : issuerName,
-			  subjectName);
+    X509Certificate x509Cert = (X509Certificate) cert;
+    PublicKey pubKey = x509Cert.getPublicKey();
+    String issuerName = x509Cert.getIssuerDN().getName();
+    String subjectName = x509Cert.getSubjectDN().getName();
+    return String.format("alg=%1$s, length=%2$d, issuer=%3$s, subject=%4$s.", pubKey.getAlgorithm(),
+        getBitLength(pubKey), issuerName.equals(subjectName) ? "selfSigned" : issuerName, subjectName);
   }
 
   private static int getBitLength(PublicKey pubKey)
   {
     int bitLength = -1;
-    if(pubKey instanceof RSAPublicKey)
+    if (pubKey instanceof RSAPublicKey)
     {
-      bitLength = ((RSAPublicKey)pubKey).getModulus().bitLength();
-    } else if (pubKey instanceof DSAPublicKey) {
-      bitLength = ((DSAPublicKey)pubKey).getParams().getP().bitLength();
+      bitLength = ((RSAPublicKey) pubKey).getModulus().bitLength();
+    } else if (pubKey instanceof DSAPublicKey)
+    {
+      bitLength = ((DSAPublicKey) pubKey).getParams().getP().bitLength();
     } else if (pubKey instanceof ECPublicKey)
     {
-      bitLength = ((ECPublicKey)pubKey).getParams().getCurve().getField().getFieldSize();
+      bitLength = ((ECPublicKey) pubKey).getParams().getCurve().getField().getFieldSize();
     }
     return bitLength;
   }
@@ -352,8 +391,7 @@ public final class TLSTest
   private static String getPropInfo(String propName, String defaultValue, boolean isPassword)
   {
     String propValue = System.getProperty(propName, defaultValue);
-    return defaultValue.equals(propValue) ?
-	    	propName + " is NOT set, using default '" + defaultValue + "'\n" :
-	        propName + " is set: '" + (isPassword ? "********" : propValue) + "'\n";
+    return defaultValue.equals(propValue) ? propName + " is NOT set, using default '" + defaultValue + "'\n" : propName
+        + " is set: '" + (isPassword ? "********" : propValue) + "'\n";
   }
 }

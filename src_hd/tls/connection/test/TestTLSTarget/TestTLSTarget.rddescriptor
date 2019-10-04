@@ -16,6 +16,18 @@
             <parameterType>List&lt;com.axonivy.test.tls.TLSTestData&gt;</parameterType>
             <nullPermitted>false</nullPermitted>
         </inputParameter>
+        <inputParameter>
+            <name>truststoreFile</name>
+            <description></description>
+            <parameterType>File</parameterType>
+            <nullPermitted>false</nullPermitted>
+        </inputParameter>
+        <inputParameter>
+            <name>truststorePwd</name>
+            <description></description>
+            <parameterType>String</parameterType>
+            <nullPermitted>false</nullPermitted>
+        </inputParameter>
         <outputParameter>
             <name>targetUri</name>
             <description></description>
@@ -26,6 +38,24 @@
             <name>logList</name>
             <description></description>
             <parameterType>List&lt;com.axonivy.test.tls.TLSTestData&gt;</parameterType>
+            <nullPermitted>false</nullPermitted>
+        </outputParameter>
+        <outputParameter>
+            <name>truststoreFile</name>
+            <description></description>
+            <parameterType>File</parameterType>
+            <nullPermitted>true</nullPermitted>
+        </outputParameter>
+        <outputParameter>
+            <name>truststorePwd</name>
+            <description></description>
+            <parameterType>String</parameterType>
+            <nullPermitted>true</nullPermitted>
+        </outputParameter>
+        <outputParameter>
+            <name>useSpecialTruststore</name>
+            <description></description>
+            <parameterType>Boolean</parameterType>
             <nullPermitted>false</nullPermitted>
         </outputParameter>
     </startMethod>

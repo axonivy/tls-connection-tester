@@ -61,7 +61,14 @@ Ts0 f3 actionDecl 'tls.connection.test.Data out;
 ' #txt
 Ts0 f3 actionTable 'out=in;
 ' #txt
-Ts0 f3 actionCode 'new com.axonivy.test.tls.TLSTest(in.logList, in.targetUri).runTLSTests();
+Ts0 f3 actionCode 'import com.axonivy.test.tls.TLSTest;
+
+TLSTest test = new com.axonivy.test.tls.TLSTest(in.logList, in.targetUri);
+if (in.useSpecialTruststore) {
+	test.runTLSTestsWithSpecificTruststore(in.truststoreFile, in.truststorePwd.toCharArray());
+} else {
+	test.runTLSTests();
+}
 
 ' #txt
 Ts0 f3 type tls.connection.test.Data #txt
@@ -95,17 +102,22 @@ Ts0 f4 280 64 328 64 #arcP
 Ts0 f6 targetWindow NEW #txt
 Ts0 f6 targetDisplay TOP #txt
 Ts0 f6 richDialogId tls.connection.test.TestTLSTarget #txt
-Ts0 f6 startMethod start(String,List<com.axonivy.test.tls.TLSTestData>) #txt
+Ts0 f6 startMethod start(String,List<com.axonivy.test.tls.TLSTestData>,File,String) #txt
 Ts0 f6 type tls.connection.test.Data #txt
-Ts0 f6 requestActionDecl '<String targetUri, List<com.axonivy.test.tls.TLSTestData> logList> param;' #txt
+Ts0 f6 requestActionDecl '<String targetUri, List<com.axonivy.test.tls.TLSTestData> logList, File truststoreFile, String truststorePwd> param;' #txt
 Ts0 f6 requestMappingAction 'param.targetUri=in.targetUri;
 param.logList=in.logList;
+param.truststoreFile=in.truststoreFile;
+param.truststorePwd=in.truststorePwd;
 ' #txt
 Ts0 f6 responseActionDecl 'tls.connection.test.Data out;
 ' #txt
 Ts0 f6 responseMappingAction 'out=in;
 out.logList=result.logList;
 out.targetUri=result.targetUri;
+out.truststoreFile=result.truststoreFile;
+out.truststorePwd=result.truststorePwd;
+out.useSpecialTruststore=result.useSpecialTruststore;
 ' #txt
 Ts0 f6 isAsynch false #txt
 Ts0 f6 isInnerRd false #txt

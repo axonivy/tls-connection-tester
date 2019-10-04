@@ -20,14 +20,37 @@
 			Please enter the target URI you want to test against
 			</h4>
 			
-			<h:form id="form">
+			<h:form id="tlsUploadForm"  enctype="multipart/form-data">
 				<h:panelGrid columns="2">
 					<p:outputLabel value="TLS Target URI" for="targetUri"/>
-					<p:inputText value="#{data.targetUri}" id="targetUri" size="100"/>
-					
-					
-					<br />
-					<p:commandButton actionListener="#{logic.close}" value="Run Tests" update="form" icon="ui-icon-check" />
+					<p:inputText value="#{data.targetUri}"  id="targetUri" immediate="true" required="true" requiredMessage="Please provide a target URI" size="100"/>
+					<p:outputLabel value="Use special truststore" for="useSpecialTruststore"/>
+					<p:selectBooleanCheckbox  value="#{data.useSpecialTruststore}" id="useSpecialTruststore">
+						<p:ajax  update="fileUpload tsPwd fileUploadButton"></p:ajax>
+					</p:selectBooleanCheckbox>
+
+					<p:outputLabel value="Truststore Password" for="tsPwd"/>
+					<p:password redisplay="true" disabled="#{data.useSpecialTruststore != true}" value="#{data.specialTruststorePwd}" id="tsPwd" immediate="true" />
+					<p:outputLabel value="Special Truststore"/>
+					<p:fileUpload  value="#{data.truststoreFile}" id="fileUpload" disabled="#{data.useSpecialTruststore != true}"
+						fileUploadListener="#{logic.uploadTruststore}"
+						allowTypes="/(\.|\/)(jks|p*12)$/i" auto="true"
+						mode="simple" label="Upload Truststore"
+						update="tlsUploadForm" />
+					<p:outputLabel/>
+					<p:outputPanel>
+						<p:commandButton value="Upload" disabled="#{data.useSpecialTruststore != true}"
+							actionListener="#{logic.uploadTruststore}" ajax="false" id="fileUploadButton"/>
+						<a href="#{ivy.html.fileref(data.truststoreFile)}">#{data.specialTruststore}</a>
+					</p:outputPanel>
+					<br/><br/><br/><br/><br/>
+					<h:panelGrid columns="2">
+						<f:facet name="header">
+							<p:messages showDetail="true"/>
+						</f:facet>
+						
+						<p:commandButton actionListener="#{logic.close}" value="Run Tests" update="tlsUploadForm" icon="ui-icon-check" />
+					</h:panelGrid>
 				</h:panelGrid>
 			</h:form>
 			
