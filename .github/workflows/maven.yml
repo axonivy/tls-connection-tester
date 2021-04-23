@@ -29,5 +29,4 @@ jobs:
     - name: archive artifact
       uses: actions/upload-artifact@v2
       with:
-        name: tls-connection-test.iar
         path: tls-tester/target/tls-connection-tester*.iar
