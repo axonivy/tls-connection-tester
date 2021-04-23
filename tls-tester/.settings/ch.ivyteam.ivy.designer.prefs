@@ -1,0 +1,17 @@
+ch.ivyteam.ivy.designer.preferences.DataClassPreferencePage\:DEFAULT_DATA_CLASS=tls.connection.test.Data
+ch.ivyteam.ivy.designer.preferences.DataClassPreferencePage\:DEFAULT_NAMESPACE=tls.connection.test
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_KeyPassword=changeit
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_KeyStoreAlgorithm=SunX509
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_KeyStoreFile=configuration/keystore.jks
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_KeyStorePassword=changeit
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_KeyStoreType=jks
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_TrustStoreAlgorithm=PKIX
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_TrustStoreFile=configuration/truststore.p12
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_TrustStorePassword=changeit
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_TrustStoreType=PKCS12
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_UseCustomKeyStore=false
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_UseCustomTrustStore=true
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:SSL_CLIENT_UseSystemTrustStore=true
+ch.ivyteam.ivy.designer.process.ui.preferences.SslClientPreferencePage\:useProjectSettings=true
+ch.ivyteam.ivy.project.preferences\:PROJECT_VERSION=80000
+eclipse.preferences.version=1
