@@ -24,7 +24,7 @@ import com.axonivy.test.tls.TLSUtils.KeyStoreInfo;
 import ch.ivyteam.di.restricted.DiCore;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.scripting.objects.File;
-import ch.ivyteam.ivy.ssl.restricted.SslClientSettings;
+import ch.ivyteam.ivy.ssl.client.restricted.SslClientSettings;
 
 public final class TLSTest
 {
