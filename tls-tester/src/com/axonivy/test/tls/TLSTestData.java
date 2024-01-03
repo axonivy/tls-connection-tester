@@ -23,12 +23,12 @@ public final class TLSTestData
   {
     return testGroup.getInfo();
   }
-
+  
   public void addEntry(String newEntry)
   {
     this.entryList.add(newEntry);
   }
-
+  
   public void addEntry(String newEntry, Object... args)
   {
     this.entryList.add(String.format(newEntry, args));

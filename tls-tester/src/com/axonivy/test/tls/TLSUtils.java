@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import ch.ivyteam.ivy.ssl.restricted.ISslConfig;
 import ch.ivyteam.ivy.ssl.restricted.IvySslContext;
-import ch.ivyteam.ivy.ssl.restricted.SslClientSettings;
+import ch.ivyteam.ivy.ssl.restricted.SslSettings;
 import ch.ivyteam.util.net.SSLUtil;
 
 public class TLSUtils
@@ -72,7 +72,7 @@ public class TLSUtils
     return ks;
   }
 
-  public static SSLSocketFactory getIvySSLSocketFactory(SslClientSettings settings)
+  public static SSLSocketFactory getIvySSLSocketFactory(SslSettings settings)
   {
     ISslConfig ivySslConfig = new SSLConfig(settings);
     IvySslContext ivyContext = new IvySslContext(ivySslConfig);
@@ -238,9 +238,9 @@ public class TLSUtils
   static class SSLConfig implements ISslConfig
   {
 
-    private final SslClientSettings settings;
+    private final SslSettings settings;
 
-    SSLConfig(SslClientSettings settings) {
+    SSLConfig(SslSettings settings) {
       this.settings = settings;
     }
 
@@ -251,7 +251,7 @@ public class TLSUtils
     }
 
     @Override
-    public SslClientSettings getSettings()
+    public SslSettings getSettings()
     {
       return settings;
     }

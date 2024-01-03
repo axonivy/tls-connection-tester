@@ -33,7 +33,7 @@
 					<p:password redisplay="true" disabled="#{data.useSpecialTruststore != true}" value="#{data.specialTruststorePwd}" id="tsPwd" immediate="true" />
 					<p:outputLabel value="Special Truststore"/>
 					<p:fileUpload  value="#{data.truststoreFile}" id="fileUpload" disabled="#{data.useSpecialTruststore != true}"
-						listener="#{logic.uploadTruststore}"
+						fileUploadListener="#{logic.uploadTruststore}"
 						allowTypes="/(\.|\/)(jks|p*12)$/i" auto="true"
 						mode="simple" label="Upload Truststore"
 						update="tlsUploadForm" />

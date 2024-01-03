@@ -21,9 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.axonivy.test.tls.TLSUtils.KeyStoreInfo;
 
+import ch.ivyteam.di.restricted.DiCore;
 import ch.ivyteam.ivy.environment.Ivy;
 import ch.ivyteam.ivy.scripting.objects.File;
-import ch.ivyteam.ivy.ssl.restricted.SslClientSettings;
+import ch.ivyteam.ivy.ssl.client.restricted.SslClientSettings;
 
 public final class TLSTest
 {
@@ -55,7 +56,7 @@ public final class TLSTest
   public TLSTest(List<TLSTestData> logs, String targetUri) {
     this.logs = logs;
     this.targetUri = targetUri;
-    this.sslClientSettings = SslClientSettings.instance();
+    this.sslClientSettings = DiCore.getGlobalInjector().getInstance(SslClientSettings.class);
   }
 
   public void runTLSTests()
@@ -104,18 +105,17 @@ public final class TLSTest
 
   private void checkIvySystemProperties()
   {
-    var keystore = sslClientSettings.getKeyStore();
     TLSTestData data = new TLSTestData(TLSTestGroup.IVY_SYSTEM_PROPERTIES);
     String notBeUsed = "NOT be used - skipping";
     String toBeUsed = "be used";
 
-    String usage = keystore.useSystemKeyStore() ? toBeUsed : notBeUsed;
+    String usage = sslClientSettings.useSystemKeyStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "System", "KeyStore", usage);
-    usage = keystore.useCustomKeyStore() ? toBeUsed : notBeUsed;
+    usage = sslClientSettings.useCustomKeyStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "Custom", "KeyStore", usage);
-    usage = keystore.useSystemKeyStore() ? toBeUsed : notBeUsed;
+    usage = sslClientSettings.useSystemKeyStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "System", "TrustStore", usage);
-    usage = toBeUsed;
+    usage = sslClientSettings.useCustomTrustStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "Custom", "TrustStore", usage);
     data.setResult(2);
 
@@ -155,16 +155,15 @@ public final class TLSTest
 
   private void loadCustomClientKeystore()
   {
-    var keystore = sslClientSettings.getKeyStore();
     TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_KEYSTORE);
-    if (!keystore.useCustomKeyStore())
+    if (!sslClientSettings.useCustomKeyStore())
     {
       data.addEntry("Custom client KeyStore set to NOT be used - skipping");
       data.setResult(2);
     } else
     {
-      customKeyStore = loadKeyStore(keystore.getFile(), keystore.getKeyPassword()
-          , keystore.getType(), keystore.getProvider(),
+      customKeyStore = loadKeyStore(sslClientSettings.getKeyStoreFile(), sslClientSettings.getKeyPassword()
+          .toCharArray(), sslClientSettings.getKeyStoreType(), sslClientSettings.getKeyStoreProvider(),
           "CustomKeyStore", data);
     }
     logs.add(data);
@@ -172,16 +171,15 @@ public final class TLSTest
 
   private void loadCustomClientTruststore()
   {
-    var trustStore = sslClientSettings.getTrustStore();
     TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_TRUSTSTORE);
-    if (false)
+    if (!sslClientSettings.useCustomTrustStore())
     {
       data.addEntry("Custom client TrustStore set to NOT be used - skipping");
       data.setResult(2);
     } else
     {
-      customTrustStore = loadKeyStore(trustStore.getFile(), trustStore.getPassword()
-          , trustStore.getType(), trustStore.getProvider(),
+      customTrustStore = loadKeyStore(sslClientSettings.getTrustStoreFile(), sslClientSettings.getTrustStorePassword()
+          .toCharArray(), sslClientSettings.getTrustStoreType(), sslClientSettings.getTrustStoreProvider(),
           "CustomTrustStore", data);
     }
     logs.add(data);
