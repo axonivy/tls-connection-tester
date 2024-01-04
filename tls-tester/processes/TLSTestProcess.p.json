@@ -1,0 +1,115 @@
+{
+  "format" : "10.0.0",
+  "id" : "168B8347C57B9D0E",
+  "config" : {
+    "data" : "tls.connection.test.Data"
+  },
+  "elements" : [ {
+      "id" : "f0",
+      "type" : "RequestStart",
+      "name" : "start.ivp",
+      "config" : {
+        "callSignature" : "start",
+        "input" : {
+          "map" : {
+            "out.logList" : "new java.util.ArrayList()"
+          }
+        },
+        "outLink" : "start.ivp"
+      },
+      "visual" : {
+        "at" : { "x" : 96, "y" : 64 },
+        "labelOffset" : { "x" : 12, "y" : 37 }
+      },
+      "connect" : { "id" : "f8", "to" : "f6" }
+    }, {
+      "id" : "f1",
+      "type" : "TaskEnd",
+      "visual" : {
+        "at" : { "x" : 648, "y" : 64 }
+      }
+    }, {
+      "id" : "f3",
+      "type" : "Script",
+      "config" : {
+        "output" : {
+          "code" : [
+            "import com.axonivy.test.tls.TLSTest;",
+            "",
+            "TLSTest test = new com.axonivy.test.tls.TLSTest(in.logList, in.targetUri);",
+            "if (in.useSpecialTruststore) {",
+            "  test.runTLSTestsWithSpecificTruststore(in.truststoreFile, in.truststorePwd.toCharArray());",
+            "} else {",
+            "  test.runTLSTests();",
+            "}"
+          ]
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 384, "y" : 64 }
+      },
+      "connect" : { "id" : "f2", "to" : "f7" }
+    }, {
+      "id" : "f7",
+      "type" : "DialogCall",
+      "config" : {
+        "dialogId" : "tls.connection.test.TestTLSDialog",
+        "startMethod" : "start(String,List<com.axonivy.test.tls.TLSTestData>)",
+        "output" : {
+          "map" : {
+            "out" : "in",
+            "out.logList" : "result.logList"
+          }
+        },
+        "call" : {
+          "params" : [
+            { "name" : "targetUri", "type" : "String" },
+            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>" }
+          ],
+          "map" : {
+            "param.targetUri" : "in.targetUri",
+            "param.logList" : "in.logList"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 560, "y" : 64 }
+      },
+      "connect" : { "id" : "f5", "to" : "f1" }
+    }, {
+      "id" : "f6",
+      "type" : "DialogCall",
+      "config" : {
+        "dialogId" : "tls.connection.test.TestTLSTarget",
+        "startMethod" : "start(String,List<com.axonivy.test.tls.TLSTestData>,File,String)",
+        "output" : {
+          "map" : {
+            "out" : "in",
+            "out.logList" : "result.logList",
+            "out.targetUri" : "result.targetUri",
+            "out.truststoreFile" : "result.truststoreFile",
+            "out.truststorePwd" : "result.truststorePwd",
+            "out.useSpecialTruststore" : "result.useSpecialTruststore"
+          }
+        },
+        "call" : {
+          "params" : [
+            { "name" : "targetUri", "type" : "String" },
+            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>" },
+            { "name" : "truststoreFile", "type" : "File" },
+            { "name" : "truststorePwd", "type" : "String" }
+          ],
+          "map" : {
+            "param.targetUri" : "in.targetUri",
+            "param.logList" : "in.logList",
+            "param.truststoreFile" : "in.truststoreFile",
+            "param.truststorePwd" : "in.truststorePwd"
+          }
+        }
+      },
+      "visual" : {
+        "at" : { "x" : 224, "y" : 64 }
+      },
+      "connect" : { "id" : "f4", "to" : "f3" }
+    } ]
+}

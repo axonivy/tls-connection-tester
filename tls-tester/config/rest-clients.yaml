@@ -1,0 +1,8 @@
+RestClients:
+  test:
+    UUID: 5fa22fb6-6f38-41d0-a5ba-b28480ebdf16
+    Url: http://localhost/
+    Features:
+    - ch.ivyteam.ivy.rest.client.mapper.JsonFeature
+    Properties:
+      JSON.Deserialization.FAIL_ON_UNKNOWN_PROPERTIES: 'false'
