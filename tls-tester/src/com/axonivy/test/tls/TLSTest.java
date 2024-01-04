@@ -115,8 +115,7 @@ public final class TLSTest
     data.addEntry(STORE_SETTING_TXT, "Custom", "KeyStore", usage);
     usage = sslClientSettings.useSystemKeyStore() ? toBeUsed : notBeUsed;
     data.addEntry(STORE_SETTING_TXT, "System", "TrustStore", usage);
-    usage = sslClientSettings.useCustomTrustStore() ? toBeUsed : notBeUsed;
-    data.addEntry(STORE_SETTING_TXT, "Custom", "TrustStore", usage);
+    data.addEntry(STORE_SETTING_TXT, "Custom", "TrustStore", toBeUsed);
     data.setResult(2);
 
     logs.add(data);
@@ -163,7 +162,7 @@ public final class TLSTest
     } else
     {
       customKeyStore = loadKeyStore(sslClientSettings.getKeyStoreFile(), sslClientSettings.getKeyPassword()
-          .toCharArray(), sslClientSettings.getKeyStoreType(), sslClientSettings.getKeyStoreProvider(),
+          , sslClientSettings.getKeyStoreType(), sslClientSettings.getKeyStoreProvider(),
           "CustomKeyStore", data);
     }
     logs.add(data);
@@ -172,16 +171,10 @@ public final class TLSTest
   private void loadCustomClientTruststore()
   {
     TLSTestData data = new TLSTestData(TLSTestGroup.CLIENT_CUSTOM_TRUSTSTORE);
-    if (!sslClientSettings.useCustomTrustStore())
-    {
-      data.addEntry("Custom client TrustStore set to NOT be used - skipping");
-      data.setResult(2);
-    } else
-    {
-      customTrustStore = loadKeyStore(sslClientSettings.getTrustStoreFile(), sslClientSettings.getTrustStorePassword()
-          .toCharArray(), sslClientSettings.getTrustStoreType(), sslClientSettings.getTrustStoreProvider(),
-          "CustomTrustStore", data);
-    }
+    customTrustStore = loadKeyStore(sslClientSettings.getTrustStoreFile(), sslClientSettings.getTrustStorePassword()
+        , sslClientSettings.getTrustStoreType(), sslClientSettings.getTrustStoreProvider(),
+        "CustomTrustStore", data);
+    
     logs.add(data);
   }
 
