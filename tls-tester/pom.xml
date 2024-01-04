@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.axonivy.ivy.supplements</groupId>
   <artifactId>tls-connection-tester</artifactId>
-  <version>10.0.0-SNAPSHOT</version>
+  <version>11.3.0-SNAPSHOT</version>
   <packaging>iar</packaging>
   <organization>
     <name>AXON IVY AG</name>
@@ -15,7 +15,7 @@
       <plugin>
         <groupId>com.axonivy.ivy.ci</groupId>
         <artifactId>project-build-plugin</artifactId>
-        <version>11.2.0</version>
+        <version>11.3.0</version>
         <extensions>true</extensions>
         <configuration></configuration>
       </plugin>
