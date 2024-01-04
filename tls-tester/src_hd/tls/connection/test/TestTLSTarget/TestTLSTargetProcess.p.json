@@ -1,5 +1,5 @@
 {
-  "format" : "10.0.0",
+  "$schema" : "https://json-schema.axonivy.com/process/11.2.2/process.json",
   "id" : "168B89D8FA6339FA",
   "kind" : "HTML_DIALOG",
   "config" : {
@@ -10,14 +10,28 @@
       "type" : "HtmlDialogStart",
       "name" : "start(String,List<String>)",
       "config" : {
-        "callSignature" : "start",
+        "signature" : "start",
+        "input" : {
+          "params" : [
+            { "name" : "targetUri", "type" : "String", "desc" : "" },
+            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>", "desc" : "" },
+            { "name" : "truststoreFile", "type" : "File", "desc" : "" },
+            { "name" : "truststorePwd", "type" : "String", "desc" : "" }
+          ],
+          "map" : {
+            "out.logList" : "param.logList",
+            "out.specialTruststorePwd" : "param.truststorePwd",
+            "out.targetUri" : "param.targetUri",
+            "out.truststoreFile" : "param.truststoreFile"
+          }
+        },
         "result" : {
           "params" : [
-            { "name" : "targetUri", "type" : "String" },
-            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>" },
-            { "name" : "truststoreFile", "type" : "File" },
-            { "name" : "truststorePwd", "type" : "String" },
-            { "name" : "useSpecialTruststore", "type" : "Boolean" }
+            { "name" : "targetUri", "type" : "String", "desc" : "" },
+            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>", "desc" : "" },
+            { "name" : "truststoreFile", "type" : "File", "desc" : "" },
+            { "name" : "truststorePwd", "type" : "String", "desc" : "" },
+            { "name" : "useSpecialTruststore", "type" : "Boolean", "desc" : "" }
           ],
           "map" : {
             "result.targetUri" : "in.targetUri",
@@ -27,27 +41,15 @@
             "result.useSpecialTruststore" : "in.useSpecialTruststore"
           }
         },
-        "input" : {
-          "params" : [
-            { "name" : "targetUri", "type" : "String" },
-            { "name" : "logList", "type" : "List<com.axonivy.test.tls.TLSTestData>" },
-            { "name" : "truststoreFile", "type" : "File" },
-            { "name" : "truststorePwd", "type" : "String" }
-          ],
-          "map" : {
-            "out.logList" : "param.logList",
-            "out.specialTruststorePwd" : "param.truststorePwd",
-            "out.targetUri" : "param.targetUri",
-            "out.truststoreFile" : "param.truststoreFile"
-          }
-        },
         "guid" : "168B89D8FB9AB024"
       },
       "visual" : {
         "at" : { "x" : 96, "y" : 64 },
         "labelOffset" : { "x" : 21, "y" : 35 }
       },
-      "connect" : { "id" : "f2", "to" : "f1" }
+      "connect" : [
+        { "id" : "f2", "to" : "f1" }
+      ]
     }, {
       "id" : "f1",
       "type" : "HtmlDialogEnd",
@@ -65,7 +67,9 @@
         "at" : { "x" : 96, "y" : 160 },
         "labelOffset" : { "x" : 9, "y" : 32 }
       },
-      "connect" : { "id" : "f5", "to" : "f4" }
+      "connect" : [
+        { "id" : "f5", "to" : "f4" }
+      ]
     }, {
       "id" : "f4",
       "type" : "HtmlDialogExit",
@@ -117,7 +121,9 @@
       "visual" : {
         "at" : { "x" : 224, "y" : 256 }
       },
-      "connect" : { "id" : "f15", "to" : "f14" }
+      "connect" : [
+        { "id" : "f15", "to" : "f14" }
+      ]
     }, {
       "id" : "f6",
       "type" : "HtmlDialogEventStart",
@@ -129,6 +135,8 @@
         "at" : { "x" : 96, "y" : 256 },
         "labelOffset" : { "x" : 15, "y" : 35 }
       },
-      "connect" : { "id" : "f8", "to" : "f7" }
+      "connect" : [
+        { "id" : "f8", "to" : "f7" }
+      ]
     } ]
 }
