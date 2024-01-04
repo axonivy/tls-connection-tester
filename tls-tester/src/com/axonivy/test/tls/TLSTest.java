@@ -176,7 +176,6 @@ public final class TLSTest
     customTrustStore = loadKeyStore(ts.getFile(), ts.getPassword()
         , ts.getType(), ts.getProvider(),
         "CustomTrustStore", data);
-
     logs.add(data);
   }
 
