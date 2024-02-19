@@ -1,5 +1,10 @@
-# tls-connection-tester
+# TLS connection tester
 Ivy project to test TLS client connections to remote servers
+
+## ⚠️ Archived ⚠️
+
+TLS-Connection testing has become a standard feature, provided by the AxonIvy Engine-Cockpit.
+Therefore this project only exists to serve pre 11.3 customers with the TLS tester functionality.
 
 ## How to
 
